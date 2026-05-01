@@ -1,4 +1,4 @@
-FROM node:25.9.0-alpine
+FROM node:25.9-alpine
 WORKDIR /usr/src/niles
 COPY . .
 RUN npm install --production
