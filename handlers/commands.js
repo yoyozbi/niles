@@ -52,7 +52,7 @@ function getAccessToken(force, guild, channel) {
   };
   log("getAccessToken | send auth embed");
   send(channel, { embeds: [authEmbed] }, 30000 );
-  let collector = channel.createMessageCollector((msg) => !msg.author.bot, { time: 30000 });
+  let collector = channel.createMessageCollector({ filter: (msg) => !msg.author.bot, time: 30000 });
   collector.on("collect", (m) => {
     settings.oauth2.getToken(m.content, (err, token) => {
       if (err) return send(channel, i18n.t("auth.oauth.err", { lng: guild.lng, err }));
@@ -492,14 +492,14 @@ function generateCalendar(guild, channel) {
   const dayMap = guild.getDayMap();
   const guildSettings = guild.getSetting();
   // announcement channels are not supported https://git.io/JsGcy
-  if (channel.type === "news") {
+  if (channel.type === discord.ChannelType.GuildAnnouncement) {
     channel.send(i18n.t("announcement", { lng: guild.lng }));
     return killUpdateTimer(guild.id, "news channel");
   }
   // create embed
-  let embed = new discord.MessageEmbed();
+  let embed = new discord.EmbedBuilder();
   embed.setTitle(guildSettings.calendarName)
-    .setColor("BLUE")
+    .setColor(discord.Colors.Blue)
     .setFooter({ text: "Last update" })
     .setTimestamp();
   if (guildSettings.calurl === "1") {
@@ -511,19 +511,19 @@ function generateCalendar(guild, channel) {
   } else if (guildSettings.style === "code") {
     embed.setDescription(generateCalendarCodeblock(guild));
     //Handle Calendars Greater Than 2048 Characters Long
-    if (embed.length>2048) {
+    if ((embed.data.description?.length ?? 0) > 2048) {
       channel.send(i18n.t("calendar.too_long", { lng: guild.lng }));
       return 2048;
     }
   } else if (guildSettings.style === "embed") {
-    embed.fields = generateCalendarEmbed(guild);
+    embed.setFields(generateCalendarEmbed(guild));
   }
   // add other embeds after code
   if (guildSettings.helpmenu === "1") {
-    embed.addField(i18n.t("calendar.embed.help_title", { lng: guild.lng }), i18n.t("calendar.embed.help_desc", { lng: guild.lng }), false);
+    embed.addFields({ name: i18n.t("calendar.embed.help_title", { lng: guild.lng }), value: i18n.t("calendar.embed.help_desc", { lng: guild.lng }), inline: false });
   }
   if (guildSettings.tzDisplay === "1") { // display timezone
-    embed.addField("Timezone", guildSettings.timezone, false);
+    embed.addFields({ name: "Timezone", value: guildSettings.timezone, inline: false });
   }
   return embed;
 }
@@ -871,7 +871,7 @@ function displayStats(channel) {
     const usedMem = `${(process.memoryUsage().rss/1048576).toFixed()} MB`;
     const totalMem = (totalmem()>1073741824 ? (totalmem() / 1073741824).toFixed(1) + " GB" : (totalmem() / 1048576).toFixed() + " MB");
     const embedObj = {
-      color: "RED",
+      color: discord.Colors.Red,
       title: `Niles Bot ${version}`,
       url: "https://github.com/niles-bot/niles",
       fields: [

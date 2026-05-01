@@ -2,7 +2,7 @@ const discord = require("discord.js");
 const { readdirSync } = require("fs");
 const { join } = require("path");
 const debug = require("debug")("niles:bot");
-const client = new discord.Client({ intents: [discord.Intents.FLAGS.GUILDS, discord.Intents.FLAGS.GUILD_MESSAGES] });
+const client = new discord.Client({ intents: [discord.GatewayIntentBits.Guilds, discord.GatewayIntentBits.GuildMessages] });
 exports.client = client;
 const TOKEN = require("./settings.js").secrets.bot_token;
 const commands = require("./handlers/commands.js");
@@ -52,16 +52,16 @@ function addMissingGuilds(availableGuilds) {
 const validCmd = [
   // init
   "id", "tz", "setup", "help", "locale",
-  "init", "prefix", "admin", "auth", 
+  "init", "prefix", "admin", "auth",
   // calendar
   "display", "create", "scrim", "delete",
   "update", "sync", "next", "get", "stop",
   // display options
-  "displayoptions", "channel", "calname", 
+  "displayoptions", "channel", "calname",
   // channel maintenance
   "clean", "purge", "validate",
   // bot help
-  "stats", "info", "invite", "ping", 
+  "stats", "info", "invite", "ping",
   // admin cmd
   "reset", "debug", "deny"
 ];
@@ -93,7 +93,7 @@ function runCmd(message) {
   }
   // check missing permisions
   const missingPermissions = permissionCheck(message.channel);
-  if (missingPermissions.includes("SEND_MESSAGES")) {
+  if (missingPermissions.includes("SendMessages")) {
     message.author.send(`Hey I noticed you tried to use the command \`${cmd}\`. I am missing the following permissions in channel **${message.channel.name}**: \`\`\`${missingPermissions}\`\`\``);
   }
   log(`${message.author.tag}:${message.content} || guild:${message.guild.id} || shard:${client.shard.ids}`); // log message
@@ -102,14 +102,14 @@ function runCmd(message) {
 
 client.login(TOKEN);
 
-client.on("ready", () => {
+client.on("clientReady", () => {
   shardID = client.shard.ids;
   log(`Bot is logged in. Shard: ${shardID}`);
   // fetch all guild cache objects
   client.shard.fetchClientValues("guilds.cache")
     .then((results) => {
-      results.forEach(function (item) { // iterate over shards
-        item.forEach(function (item) { // iterate over servers
+      results.forEach(function(item) { // iterate over shards
+        item.forEach(function(item) { // iterate over servers
           shardGuilds.push(item.id); // add server id to shardGuilds
         });
       });
@@ -134,7 +134,7 @@ client.on("guildDelete", (guild) => {
 
 client.on("messageCreate", (message) => {
   try {
-    if (message.channel.type === "dm" || message.author.bot) return; // ignore if dm or sent by bot
+    if (message.channel.type === discord.ChannelType.DM || message.author.bot) return; // ignore if dm or sent by bot
     runCmd(message); // run command through parser
   } catch (err) {
     log(`error running main message handler in guild: ${message.guild.id} : ${err}`);

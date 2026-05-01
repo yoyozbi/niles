@@ -17,7 +17,7 @@
     "bree": "^8.0.3",
     "columnify": "^1.6.0",
     "debug": "^4.3.4",
-    "discord.js": "^13.17.1",
+    "discord.js": "^14.26.3",
     "i18next": "^21.8.2",
     "i18next-fs-backend": "^2.6.5",
     "luxon": "^2.4.0",

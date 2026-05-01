@@ -90,7 +90,7 @@ function checkRole(message, guildSettings) {
  */
 function permissionCheck(channel) {
   debug(`permissionCheck | ${channel.guild.id}`);
-  const minimumPermissions = ["VIEW_CHANNEL", "SEND_MESSAGES", "MANAGE_MESSAGES", "EMBED_LINKS", "ATTACH_FILES", "READ_MESSAGE_HISTORY"];
+  const minimumPermissions = ["ViewChannel", "SendMessages", "ManageMessages", "EmbedLinks", "AttachFiles", "ReadMessageHistory"];
   const botPermissions = channel.permissionsFor(bot.client.user)?.toArray();
   if (!botPermissions) return []; // bypass for forums channels
   const missingPermissions = minimumPermissions.filter((perm) => !botPermissions.includes(perm)).join(", ");
@@ -106,7 +106,7 @@ function permissionCheck(channel) {
 function yesThenCollector(channel, lng) {
   debug(`yesThenCollector | ${channel.guild.id}`);
   let p = defer();
-  const collector = channel.createMessageCollector((msg) => !msg.author.bot, { time: 30000 });
+  const collector = channel.createMessageCollector({ filter: (msg) => !msg.author.bot, time: 30000 });
   collector.on("collect", (m) => {
     if (["y", "yes"].includes(m.content.toLowerCase())) { p.resolve();
     } else {
